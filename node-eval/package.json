@@ -1,0 +1,12 @@
+{
+    "name": "Korp",
+    "version": "9.0.0",
+    "dependencies": {
+        "lodash": "^4.17.19"
+    },
+    "devDependencies": {},
+    "engines": {
+        "node": ">=0.10.0"
+    },
+    "scripts": {}
+}
