@@ -22,7 +22,8 @@ def copy():
 
 
 def call_node():
-    pass
+    os.popen('cd node-eval; node index.js').read()
+    # get result files
 
 
 if __name__ == '__main__':
