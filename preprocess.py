@@ -1,4 +1,5 @@
 import os
+import glob
 
 
 def main():
@@ -18,8 +19,12 @@ def fix_commonjs():
 
 
 def fix_modesjs():
-    pass
-
-if __name__ == '__main__':
-    main()
+    filepaths = glob.glob(os.path.join(os.getcwd(), './source/modes/*'))
+    for filepath in filepaths:
+        with open(filepath, 'r') as f:
+            lines = f.read().splitlines(keepends=True)
+            lines = list(filter(lambda line: 'CorpusListing' not in line, lines))
+            content = ''.join(lines)
+        with open(filepath, 'w') as f:
+            f.write(content)
 

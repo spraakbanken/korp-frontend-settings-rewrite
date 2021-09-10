@@ -1,11 +1,13 @@
 
+TEMPORARY REPOSITORY
+
 The purpose of this code is to take the configuration files in https://github.com/spraakbanken/korp-frontend-sb
 and create new configuration files for the Korp frontend (https://github.com/spraakbanken/korp-frontend), while 
 extracting the neccessary information for the new configuration backend.
 
-Since the original files are Javascript, sometimes with dependencies in the frontend, the files must be preprocessed
-to remove/change code, such as a call to `new CorpusListing(corpora)`. So the transformation will be done in several
-passes.
+Since the original files are Javascript, that will be evaluated with nodejs to extract information, the files must be
+preprocessed to remove/change dependencies, such as a call to `new CorpusListing(corpora)` (of no interest to the
+actual configuration).
 
 main.py:
 1. Copy the files from ../korp-frontend-sb (depends in the correct version being checkouted) into ./source/
