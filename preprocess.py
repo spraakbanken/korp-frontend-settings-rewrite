@@ -23,8 +23,17 @@ def fix_modesjs():
     for filepath in filepaths:
         with open(filepath, 'r') as f:
             lines = f.read().splitlines(keepends=True)
-            lines = list(filter(lambda line: 'CorpusListing' not in line, lines))
+            if (filepath.split('/')[-1] == 'npegl_mode.js'):
+                lastline = -1
+                for idx, line in enumerate(lines):
+                    if 'CorpusListing' in line:
+                        lastline = idx
+                        break
+                lines = lines[0:lastline]
+            else:
+                lines = list(filter(lambda line: 'CorpusListing' not in line, lines))
             content = ''.join(lines)
+            
         with open(filepath, 'w') as f:
             f.write(content)
 

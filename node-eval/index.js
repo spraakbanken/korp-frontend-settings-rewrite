@@ -8,51 +8,42 @@ const NEWPATH = "./result";
 function readAllModes() {
   global["_"] = require("lodash");
 
-  global["window"] = {};
-  global["settings"] = {};
-  global["isLab"] = false; //TODO also need to handle the isLab cases
-
-  require(`${PATH}config.js`);
-  let commonSettings = require(`${MODES}/common.js`);
-
-  _.map(commonSettings, function (v, k) {
-    if (k in global) {
-      console.error("warning, overwriting setting" + k);
-    }
-    global[k] = v;
-  });
-
   const modes = {};
 
   fs.readdirSync(MODES).forEach((file) => {
-    if (file.endsWith("_mode.js") && file != "npegl_mode.js") {
+    if (file.endsWith("_mode.js")) {
+      global["window"] = {};
       global["settings"] = {};
+      // note that after running code, we can't know which corpora are
+      // "lab corpora" or not, so this must be added manually
+      global["isLab"] = true;
+
+      require(`${PATH}config.js`);
+      let commonSettings = require(`${MODES}/common.js`);
+
+      _.map(commonSettings, function (v, k) {
+        if (k in global) {
+          console.error("warning, overwriting setting " + k);
+        }
+        global[k] = v;
+      });
       require(`${MODES}/${file}`);
       modes[file.split("_mode.js")[0]] = global["settings"];
+
+      // clean up global settings for peace of mind
+      _.map(commonSettings, function (v, k) {
+        delete global[k];
+      });
     }
   });
   return modes;
 }
 
-function writeNewModes(modes) {
+function writeNewModesFiles(modes) {
   for (let mode in modes) {
     const modeObj = modes[mode];
-    modeObj.pop("attributes");
-    modeObj.pop("structAttributes");
     let content = JSON.stringify(modeObj, null, 4);
-    content = "export default " + content;
-    fs.writeFile(`${NEWPATH}/${mode}_mode.js`, content, function (err) {
-      if (err) {
-        console.log("err writing", err);
-      }
-    });
-  }
-}
-
-function writeSettingsToFile(modes) {
-  for (let mode in modes) {
-    let content = JSON.stringify(modes[mode], null, 4);
-    fs.writeFile(`modes/${mode}.json`, content, function (err) {
+    fs.writeFile(`${NEWPATH}/${mode}.json`, content, function (err) {
       if (err) {
         console.log("err writing", err);
       }
@@ -61,12 +52,4 @@ function writeSettingsToFile(modes) {
 }
 
 const modes = readAllModes();
-console.log(modes);
-//for(let mode in modes) {
-//modes[mode]['corpora'] = undefined;
-//}
-
-// does not change mode
-//writeSettingsToFile(modes);
-// changes mode
-//writeNewModes(modes);
+writeNewModesFiles(modes);

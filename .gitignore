@@ -1,4 +1,7 @@
 source
 .venv
-./node_eval/result
+node-eval/result/
 __pycache__
+
+
+result
