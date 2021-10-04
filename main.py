@@ -1,5 +1,6 @@
 import os
 import shutil
+import glob
 
 import preprocess
 import backend
@@ -11,7 +12,8 @@ def main():
     preprocess.main()
 
     # Interpret the files using node and write the result to ./interpreted/<mode>.json
-    call_node()
+    modes = glob.glob('source/modes/*_mode.js')
+    call_node(modes)
     
     # Create needed folders
     os.popen('rm -r result || true').read()
@@ -30,9 +32,13 @@ def copy():
     os.popen('cp -r ../korp-frontend-sb/app/* source/').read()
 
 
-def call_node():
+def call_node(modes):
     os.popen('mkdir node-eval/result || true').read()
-    os.popen('cd node-eval; node index.js').read()
+
+    # Run node once per modes-files
+    for mode in modes:
+        os.popen('cd node-eval; node index.js %s' % mode).read()
+    
     os.popen('rm -r source/ || true').read()
     os.popen('rm -r interpreted/ || true').read()
     # This folder will be temporarily used by korp-settings-ws to serve unchanged data to frontend
