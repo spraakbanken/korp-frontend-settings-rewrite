@@ -7,7 +7,8 @@ from collections import defaultdict
 modesKeys = ["primaryColor", "primaryLight", "structAttributeSelector", "wordAttributeSelector", "reduceWordAttributeSelector",
              "wordpicture", "newMapEnabled", "corporafolders", "globalFilterCorpora", "preselectedCorpora", "autocomplete",
              "inputCaseInsensitiveDefault", "statisticsCaseInsensitiveDefault", "hitsPerPageDefault", "hitsPerPageValues",
-             "startLang", "defaultOverviewContext", "defaultReadingContext", "defaultWithin", "mapCenter", "mapEnabled"]
+             "startLang", "defaultOverviewContext", "defaultReadingContext", "defaultWithin", "mapCenter", "mapEnabled",
+             "enableBackendKwicDownload", "enableFrontendKwicDownload"]
 
 corporaKeys = ["id", "title", "description", "attributes", "structAttributes", "customAttributes", "limitedAccess", "context",
                "within", "morphology"]
@@ -20,6 +21,56 @@ extendedComponentKeys = ["name", "options"]  # in options, anything is ok, since
 
 attributeWeirdOnes = ["escape", "extendedTemplate"]
 
+# these should be removed from modes files
+globalSettingsKeys = ["modeConfig", "visibleModes", "wordPictureConf", "wordpictureTagset", "newsDeskUrl", "logger"]
+
+# these should be removed (or rather, not saved) from modes files if value is default
+defaults = {
+    "autocomplete": True,
+    "mapEnabled": False,
+    "hitsPerPageDefault": 25,
+    "hitsPerPageValues": [25,50,75,100,500,1000],
+    "languages": ["sv", "en"],
+    "defaultLanguage": "sv",
+    "enableBackendKwicDownload": False,
+    "enableFrontendKwicDownload": True,
+    "downloadFormats": ["csv", "tsv", "annot", "ref"],
+    "groupStatistics": ["saldo", "prefix", "suffix", "lex", "lemma", "sense", "text_swefn", "text_blingbring"],
+    "wordAttributeSelector": "union",
+    "structAttributeSelector": "union",
+    "reduceWordAttributeSelector": "intersection",
+    "reduceStructAttributeSelector": "intersection",
+    "filterSelection": "intersection",
+    "primaryColor": "rgb(221, 233, 255)",
+    "primaryLight": "rgb(242, 247, 255)",
+    "defaultOverviewContext": "1 sentence",
+    "defaultReadingContext": "1 paragraph",
+    "defaultWithin": {
+        "sentence": "sentence"
+    },
+    "cqpPrio": ['deprel', 'pos', 'msd', 'suffix', 'prefix', 'grundform', 'lemgram', 'saldo', 'word'],
+
+    "defaultOptions": {
+        "is": "=",
+        "is_not": "!=",
+        "starts_with": "^=",
+        "contains": "_=",
+        "ends_with": "&=",
+        "matches": "*=",
+        "matches_not": "!*=",
+    },
+
+    "korpBackendURL": "https://ws.spraakbanken.gu.se/ws/korp/v8",
+    "downloadCgiScript": "https://ws.spraakbanken.gu.se/ws/korp/download",
+
+    "mapCenter": {
+        "lat": 62.99515845212052,
+        "lng": 16.69921875,
+        "zoom": 4
+    },
+    "readingModeField": "sentence_id",
+    "wordpicture": True,
+}
 
 def main():
 
@@ -31,11 +82,14 @@ def main():
         modes[mode] = {}
         for key in settings.keys():
             if key != 'corpora':
-                if key not in modesKeys:
+                if (key in defaults and settings[key] == defaults[key]) or key in globalSettingsKeys:
+                    pass
+                elif key not in modesKeys:
                     print('Weird key found in %s: %s' % (mode, key))
                 elif key == 'corporafolders':
                     new_corpora_folders, corpusToFolder = parse_folders(settings["corporafolders"])
-                    modes[mode]["corporafolders"] = new_corpora_folders
+                    if new_corpora_folders != {}:
+                        modes[mode]["corporafolders"] = new_corpora_folders
                 else:
                     modes[mode][key] = settings[key]
 

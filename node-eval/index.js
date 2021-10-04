@@ -28,7 +28,8 @@ function readMode(modeFile) {
 }
 
 function writeMode(modeFile, modeObj) {
-  const mode = modeFile.split("/")[2].split("_")[0];
+  const filename = modeFile.split("/")[2];
+  const mode = filename.slice(0, filename.lastIndexOf("_"));
   let content = JSON.stringify(modeObj, null, 4);
   fs.writeFile(`${NEWPATH}/${mode}.json`, content, function (err) {
     if (err) {
