@@ -60,16 +60,19 @@ def main():
     # TODO sorts keys, but can be fixed
 
     # dump modes
+    print('write final modes', len(modes.keys()))
     for modeId, mode in modes.items():
         with open('./result/modes/' + modeId + '.yaml', 'w', encoding="utf-8") as fp:
 
             yaml.dump(mode, stream=fp, allow_unicode=True)
 
     # dump attributes
+    print('write final attributes')
     with open('./result/attributes/all.yaml', 'w', encoding="utf-8") as fp:
         yaml.dump(attributes, stream=fp, allow_unicode=True)
 
     # dump corpora
+    print('write final corpora', len(corpora.keys()))
     for corpus_id, corpus in corpora.items():
         with open('./result/corpora/' + corpus_id + '.yaml', 'w', encoding="utf-8") as fp:
             yaml.dump(corpus, stream=fp, allow_unicode=True)
@@ -121,7 +124,7 @@ def parse_folders(outer_folders):
 
 
 def read_files():
-    for filepath in glob.glob('./source/*.json'):
+    for filepath in glob.glob('./interpreted/*.json'):
         with open(filepath, 'r') as fp:
             yield filepath.split('/')[-1].split('.')[0], json.load(fp)
 

@@ -2,28 +2,25 @@ import os
 import shutil
 
 import preprocess
-import frontend
 import backend
 
 
 def main():
-    print('Python says:')
+    # Copy javascript settings files from frontend and remove unneccessary/uninterpretable code
     copy()
     preprocess.main()
-    print('Javscript says:')
+
+    # Interpret the files using node and write the result to ./interpreted/<mode>.json
     call_node()
-    print('Python says:')
+    
+    # Create needed folders
     os.popen('rm -r result || true').read()
     os.popen('mkdir result').read()
-
-    # os.popen('mkdir result/frontend').read()
-    # frontend.main()
-
     os.popen('mkdir result/modes').read()
     os.popen('mkdir result/corpora').read()
     os.popen('mkdir result/attributes').read()
+    # Create backend files
     backend.main()
-    os.popen('rm -r source/ || true').read()
 
 
 def copy():
@@ -34,10 +31,12 @@ def copy():
 
 
 def call_node():
-    os.popen('mkdir node-eval/result').read()
+    os.popen('mkdir node-eval/result || true').read()
     os.popen('cd node-eval; node index.js').read()
-    os.popen('rm -r source').read()
-    os.popen('mv node-eval/result source').read()
+    os.popen('rm -r source/ || true').read()
+    os.popen('rm -r interpreted/ || true').read()
+    # This folder will be temporarily used by korp-settings-ws to serve unchanged data to frontend
+    os.popen('mv node-eval/result interpreted').read()
 
 
 if __name__ == '__main__':
