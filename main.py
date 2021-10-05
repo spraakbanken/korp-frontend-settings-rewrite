@@ -21,6 +21,7 @@ def main():
     os.popen('mkdir result/modes').read()
     os.popen('mkdir result/corpora').read()
     os.popen('mkdir result/attributes').read()
+    os.popen('mkdir result/attributes/groups').read()
     # Create backend files
     backend.main()
 
