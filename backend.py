@@ -118,7 +118,7 @@ def main():
                     if key not in ignore_keys:
                         print('Weird key found in %s: %s' % (mode, key))
                 elif key == 'corporafolders':
-                    new_corpora_folders, corpusToFolder = parse_folders(settings["corporafolders"])
+                    new_corpora_folders, corpus_to_folder = parse_folders(settings["corporafolders"])
                     if new_corpora_folders != {}:
                         modes[mode]["corporafolders"] = new_corpora_folders
                 else:
@@ -138,8 +138,8 @@ def main():
             modeFolder = {
                 "name": mode,
             }
-            if corpusToFolder.get(corpus_id):
-                modeFolder["folder"] = corpusToFolder[corpus_id]
+            if corpus_to_folder.get(corpus_id):
+                modeFolder["folder"] = corpus_to_folder[corpus_id]
             if corpus_id in corpora:
                 corpora[corpus_id]["mode"].append(modeFolder)
             else:
@@ -205,18 +205,18 @@ def check_attribute(container, corpus_id, attr_key, attr):
 
 
 def parse_folders(outer_folders):
-    corpusToFolder = {}
+    corpus_to_folder = {}
 
-    def recurse(folders):
+    def recurse(folders, path):
         new_folders = {}
         for folder_name, folder in folders.items():
             title = folder.pop('title')
             description = folder.pop('description', None)
             contents = folder.pop('contents')
             for corpus in contents:
-                corpusToFolder[corpus] = folder_name
+                corpus_to_folder[corpus] = '.'.join([*path, folder_name])
 
-            sub_folders = recurse(folder)
+            sub_folders = recurse(folder, [*path, folder_name])
             new_folder = {
                 "title": title,
                 "description": description,
@@ -226,9 +226,9 @@ def parse_folders(outer_folders):
             new_folders[folder_name] = new_folder
         return new_folders
 
-    new_corpora_folders = recurse(outer_folders)
+    new_corpora_folders = recurse(outer_folders, [])
 
-    return new_corpora_folders, corpusToFolder
+    return new_corpora_folders, corpus_to_folder
 
 
 def read_files():
