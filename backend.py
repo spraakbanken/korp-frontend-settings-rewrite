@@ -194,7 +194,7 @@ def check_attribute(container, corpus_id, attr_key, attr):
     for content in container[attr_key]:
         attr_alt = content['attribute']
         corpora = content['corpora']
-        if compare_dictionaries(attr_alt, attr) == '':
+        if attr_alt == attr:
             if source not in corpora:
                 # corpus can be in many modes
                 corpora.append(source)
@@ -353,21 +353,21 @@ def _create_groups(corpora_settings, corpusset_to_attributes, attributes_type_se
                 inherits = corpora_settings[corpus].get("inherits", [])
                 inherits.append(group_name)
                 corpora_settings[corpus]["inherits"] = inherits
-            _remove_groups_from_attriubtes(actual_corpora, attributes_for_corpusset, attributes_type_settings)
+            _remove_groups_from_attributes(actual_corpora, attributes_for_corpusset, attributes_type_settings)
             groups[group_name] = attributes_for_corpusset
 
     return groups
     
 
-def _remove_groups_from_attriubtes(corpora, groupAttributes, attributes_type_settings):
+def _remove_groups_from_attributes(corpora, group_attributes, attributes_type_settings):
     """
     removes the attributes that have been moved to groups from the global attributes file    
     """
-    for attr_type in groupAttributes.keys():
+    for attr_type in group_attributes.keys():
         attr_settings = attributes_type_settings[attr_type]
-        for attr_key in groupAttributes[attr_type].keys():
+        for attr_key in group_attributes[attr_type].keys():
             remove_idx = None
-            for idx, attr_setting in enumerate(attr_settings[attr_key]):
+            for idx, attr_setting in reversed(list(enumerate(attr_settings[attr_key]))):
                 if sorted(attr_setting['corpora']) == sorted(corpora):
                     remove_idx = idx
                     break
@@ -380,31 +380,6 @@ def _remove_groups_from_attriubtes(corpora, groupAttributes, attributes_type_set
         for attr_key in list(attr_settings.keys()):
             if len(attr_settings[attr_key]) == 0:
                 del attr_settings[attr_key]
-
-
-# from https://stackoverflow.com/questions/27265939/comparing-python-dictionaries-and-nested-dictionaries
-def compare_dictionaries(dict_1, dict_2, path=""):
-    err = ''
-    key_err = ''
-    value_err = ''
-    old_path = path
-    for k in dict_1.keys():
-        path = old_path + "[%s]" % k
-        if k not in dict_2:
-            key_err += "keyerr"
-        else:
-            if isinstance(dict_1[k], dict) and isinstance(dict_2[k], dict):
-                err += compare_dictionaries(dict_1[k], dict_2[k], path)
-            else:
-                if dict_1[k] != dict_2[k]:
-                    value_err += "valueerr"
-
-    for k in dict_2.keys():
-        path = old_path + "[%s]" % k
-        if k not in dict_1:
-            key_err += "keyerr"
-
-    return key_err + value_err + err
 
 
 if __name__ == '__main__':
