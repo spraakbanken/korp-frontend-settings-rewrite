@@ -231,7 +231,7 @@ def parse_folders(outer_folders):
                 "description": description,
             }
             if sub_folders:
-                new_folder["subFolders"] = sub_folders
+                new_folder.update(sub_folders)
             new_folders[folder_name] = new_folder
         return new_folders
 
