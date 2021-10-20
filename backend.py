@@ -137,11 +137,17 @@ def main():
                 for attr_key, attr in attrs.items():
                     _check_attribute(attributes[attr_type], corpus_id, attr_key, attr)
 
+            if mode == 'default' and corpus_id == 'saltnld-sv':
+                continue
+
             modeFolder = {
                 "name": mode,
             }
             if corpus_to_folder.get(corpus_id):
                 modeFolder["folder"] = corpus_to_folder[corpus_id]
+            if corpus_id in ["kubhist2-dalpilen-1910", "kubhist2-kalmar-1910", "kubhist2-dalpilen-1920", "kubhist2-ostgotaposten-1900", "kubhist2-ostgotaposten-1910", "kubhist2-kalmar-1900", "kubhist2-kalmar-kalmarlanstidning-1910", "ogl"]:
+                modeFolder["labOnly"] = True
+
             if corpus_id in corpora:
                 corpora[corpus_id]["mode"].append(modeFolder)
             else:
@@ -159,9 +165,6 @@ def main():
 
     # adds identifiers to corpora, removes corpora from attributes
     _add_attributes_to_corpora(corpora, attributes)
-
-
-    # TODO yaml sorts keys, but can be fixed
 
     print("write groups", len(groups.keys()))
     for group_name in groups.keys():
