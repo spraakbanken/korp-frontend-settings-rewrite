@@ -154,6 +154,9 @@ def main():
                 corpusSettings["mode"] = [modeFolder]
                 corpora[corpus_id] = corpusSettings
 
+    # inline label translations
+    _inline_label_translations(attributes)
+
     # first give each attribute a unqiue name
     attributes = _create_unique_names(attributes)
 
@@ -194,6 +197,47 @@ def main():
         with open('./result/corpora/' + corpus_id + '.yaml', 'w', encoding="utf-8") as fp:
             yaml.dump(corpus, stream=fp, allow_unicode=True)
 
+
+def _inline_label_translations(all_attributes):
+    en_labels = json.load(open('../korp-frontend-sb/app/translations/corpora-en.json'))
+    sv_labels = json.load(open('../korp-frontend-sb/app/translations/corpora-sv.json'))
+
+    remove_sv = set()
+    remove_en = set()
+
+    for attr_type, attributes in all_attributes.items():
+        for attr_id, attributes2 in attributes.items():
+            for attributeasdf in attributes2:
+                attribute = attributeasdf['attribute']
+                label_id = attribute.get('label', '')
+
+                if label_id != '':
+                    # is label is not defined in translation files, use it as is
+                    sv_label = sv_labels.get(label_id, label_id)
+                    en_label = en_labels.get(label_id, label_id)
+                    if sv_label != en_label:
+                        label = {
+                            'sv': sv_label,
+                            'en': en_label
+                        }
+                    else:
+                        label = sv_label
+                    attribute['label'] = label
+
+                    if label_id in sv_labels:
+                        remove_sv.add(label_id)
+
+                    if label_id in en_labels:
+                        remove_en.add(label_id)
+
+    for key in remove_sv:
+        del sv_labels[key]
+    for key in remove_en:
+        del en_labels[key]
+
+    json.dump(en_labels, open('../korp-frontend-sb/app/translations/corpora-en-new.json', 'w'), indent=4, ensure_ascii=False)
+    json.dump(sv_labels, open('../korp-frontend-sb/app/translations/corpora-sv-new.json', 'w'), indent=4, ensure_ascii=False)
+    
 
 def _check_attribute(attributes, corpus_id, attr_key, attr):
     attr['id'] = attr_key
