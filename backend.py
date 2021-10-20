@@ -303,6 +303,7 @@ def _inline_attributes(corpora_settings, global_attributes):
                 # is unique attribute, just inline in corpus definintion
                 corpus = corpora[0]
                 attrs = corpora_settings[corpus].get(attr_type, {})
+                del attribute["corpora"]
                 attrs[attr_key] = attribute
                 corpora_settings[corpus][attr_type] = attrs
                 del attributes[attr_key]
