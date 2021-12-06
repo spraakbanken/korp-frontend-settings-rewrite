@@ -166,30 +166,15 @@ def main():
     # create groups of attributes that are commonly used together
     groups = _create_groups(corpora, attributes)
 
-    # adds identifiers to corpora, removes corpora from attributes
-    _add_attributes_to_corpora(corpora, attributes)
-
     print("write groups", len(groups.keys()))
     for group_name in groups.keys():
-        with open('./result/attributes/groups/%s.yaml' % group_name, 'w', encoding="utf-8") as fp:
+        with open('./result/attributes/%s.yaml' % group_name, 'w', encoding="utf-8") as fp:
             yaml.dump(groups[group_name], stream=fp, allow_unicode=True)
 
     print('write final modes', len(modes.keys()))
     for mode_id, mode in modes.items():
         with open('./result/modes/' + mode_id + '.yaml', 'w', encoding="utf-8") as fp:
             yaml.dump(mode, stream=fp, allow_unicode=True)
-
-    print('write pos attributes')
-    with open('./result/attributes/pos.yaml', 'w', encoding="utf-8") as fp:
-        yaml.dump(attributes['attributes'], stream=fp, allow_unicode=True)
-    
-    print('write struct attributes')
-    with open('./result/attributes/struct.yaml', 'w', encoding="utf-8") as fp:
-        yaml.dump(attributes['structAttributes'], stream=fp, allow_unicode=True)
-
-    print('write custom attributes')
-    with open('./result/attributes/custom.yaml', 'w', encoding="utf-8") as fp:
-        yaml.dump(attributes['customAttributes'], stream=fp, allow_unicode=True)
 
     # dump corpora
     print('write final corpora', len(corpora.keys()))
@@ -355,76 +340,46 @@ def _inline_attributes(corpora_settings, global_attributes):
 
 
 def _create_groups(corpora_settings, global_attributes):
-    """
-    find common sets of settings that can be used in many corpora (modernAttrs, commonStructAttrs)
-    """
-
     # corpora, sorted and joined with ',' a list of attributes
     group_to_attributes = {}
     for attr_type, attributes in global_attributes.items():
         for attr_key, attribute in attributes.items():
             corpora = attribute["corpora"]
-            if len(corpora) != 1:
-                # code to help find groups of attributes
-
-                # cannot find any modernAttrs :( however lots of other nice groups
-                corpora_group = ",".join(sorted(corpora))
-                attributes_for_corpusset = group_to_attributes.get(corpora_group, {'attributes': {}, 'structAttributes': {}, 'customAttributes': {}})
-                attributes_for_corpusset[attr_type][attribute["id"]] = attribute
-                group_to_attributes[corpora_group] = attributes_for_corpusset
+            # code to help find groups of attributes
+            # cannot find any modernAttrs :( however lots of other nice groups
+            corpora_group = ",".join(sorted(corpora))
+            attributes_for_corpusset = group_to_attributes.get(corpora_group, {'attributes': {}, 'structAttributes': {}, 'customAttributes': {}})
+            attributes_for_corpusset[attr_type][attribute["id"]] = attribute
+            group_to_attributes[corpora_group] = attributes_for_corpusset
 
     groups = {}
     for corpora in group_to_attributes.keys():
         group_attributes = group_to_attributes[corpora]
-        create_group = False
-        attribute_count = 0
-        for attr_type, attr_type_content in group_attributes.items():
-            attribute_count += len(attr_type_content.keys())
-            if attribute_count > 1:
-                create_group = True
-                break
 
-        if create_group:
-                    
-            actual_corpora = corpora.split(',')
-            # group naming scheme: name of first corpus in group, then number of corpora in group
-            # should be improved later, of course
-            group_name = actual_corpora[0] + '_' + str(len(actual_corpora))
-            while group_name in groups:
-                # group name already used!
-                group_name = actual_corpora[0] + '_' + actual_corpora[1] + '_' + str(len(actual_corpora))
+        actual_corpora = corpora.split(',')
+        # group naming scheme: name of first corpus in group, then number of corpora in group
+        # should be improved later, of course
+        group_name = actual_corpora[0] + '_' + str(len(actual_corpora))
+        while group_name in groups:
+            # group name already used!
+            group_name = actual_corpora[0] + '_' + actual_corpora[1] + '_' + str(len(actual_corpora))
 
-            for corpus in actual_corpora:
-                inherits = corpora_settings[corpus].get("inherits", [])
-                inherits.append(group_name)
-                corpora_settings[corpus]["inherits"] = inherits
-            
-            for attr_type, attributes in group_attributes.items():
-                for attr_key in attributes.keys():
-                    del attributes[attr_key]["corpora"]
-                    del global_attributes[attr_type][attr_key]
+        for corpus in actual_corpora:
+            inherits = corpora_settings[corpus].get("inherits", [])
+            inherits.append(group_name)
+            corpora_settings[corpus]["inherits"] = inherits
+        
+        for attr_type, attributes in group_attributes.items():
+            for attr_key in attributes.keys():
+                del attributes[attr_key]["corpora"]
+                del global_attributes[attr_type][attr_key]
 
-            groups[group_name] = group_attributes
+        groups[group_name] = group_attributes
 
     return groups
 
 
-def _add_attributes_to_corpora(corpora_settings, global_attributes):
-    """
-    add all attributes to the referecing corpora
-    then remove information about corpora from global_attributes
-    """
-    for attr_type, attributes in global_attributes.items():
-        for attr_key, attribute in attributes.items():
-            corpora = attribute.pop('corpora')
-            
-            if attr_key != attribute['id']:
-                raise AssertionError('something is wrång')
 
-            for corpus in corpora:
-                refs = corpora_settings[corpus].get(attr_type + 'Ref', [])
-                refs.append(attr_key)
-                corpora_settings[corpus][attr_type + 'Ref'] = refs
     
 
 if __name__ == '__main__':
