@@ -30,7 +30,7 @@ def copy():
     if os.path.exists('source'):
         shutil.rmtree('source')
     os.makedirs('source')
-    os.popen('cp -r ../korp-frontend-sb/app/* source/').read()
+    os.popen('cp -r ../korp-frontend-sb-rewrite-ready/app/* source/').read()
 
 
 def call_node(modes):

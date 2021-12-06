@@ -199,8 +199,8 @@ def main():
 
 
 def _inline_label_translations(all_attributes):
-    en_labels = json.load(open('../korp-frontend-sb/app/translations/corpora-en.json'))
-    sv_labels = json.load(open('../korp-frontend-sb/app/translations/corpora-sv.json'))
+    en_labels = json.load(open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-en.json'))
+    sv_labels = json.load(open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-sv.json'))
 
     remove_sv = set()
     remove_en = set()
@@ -235,8 +235,8 @@ def _inline_label_translations(all_attributes):
     for key in remove_en:
         del en_labels[key]
 
-    json.dump(en_labels, open('../korp-frontend-sb/app/translations/corpora-en-new.json', 'w'), indent=4, ensure_ascii=False)
-    json.dump(sv_labels, open('../korp-frontend-sb/app/translations/corpora-sv-new.json', 'w'), indent=4, ensure_ascii=False)
+    json.dump(en_labels, open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-en-new.json', 'w'), indent=4, ensure_ascii=False)
+    json.dump(sv_labels, open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-sv-new.json', 'w'), indent=4, ensure_ascii=False)
     
 
 def _check_attribute(attributes, corpus_id, attr_key, attr):
