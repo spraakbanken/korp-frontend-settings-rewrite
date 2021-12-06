@@ -275,8 +275,9 @@ def parse_folders(outer_folders):
             sub_folders = recurse(folder, [*path, folder_name])
             new_folder = {
                 "title": title,
-                "description": description,
             }
+            if description:
+                new_folder["description"] = description
             if sub_folders:
                 new_folder.update(sub_folders)
             new_folders[folder_name] = new_folder
