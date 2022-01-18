@@ -192,8 +192,6 @@ def main():
     # create groups of attributes that are commonly used together
     groups = _create_groups(corpora, attributes)
 
-    groups = _create_groups_from_groups(corpora, groups)
-
     print("write groups", len(groups.keys()))
     for group_name in groups.keys():
         with open('./result/attributes/%s.yaml' % group_name, 'w', encoding="utf-8") as fp:
@@ -401,62 +399,6 @@ def _create_groups(corpora_settings, global_attributes):
         groups[group_name] = group_attributes
 
     return groups
-
-
-
-def _create_groups_from_groups(corpora_settings, groups):
-    
-    # print(json.dumps(groups, indent=4))
-    # import sys
-    # sys.exit()
-    return groups
-
-    # def loop():
-
-    #     groups_of_groups = {}
-
-    #     for corpus, corpus_settings in list(corpora_settings.items()) + list(groups.items()):
-    #         inherits = corpus_settings.get("inherits", [])
-
-    #         for x in range(1, len(inherits)):
-    #             group_ids = tuple(inherits[0:x])
-    #             if group_ids not in groups_of_groups:
-    #                 groups_of_groups[group_ids] = []
-    #             groups_of_groups[group_ids].append(corpus)
-
-
-    #     for group_ids, inheritors in list(groups_of_groups.items()):
-    #         if len(inheritors) == 1:
-    #             del groups_of_groups[group_ids]        
-
-    #     next = sorted(groups_of_groups.items(), key=lambda item: len(item[0]), reverse=True)[0]
-
-    #     inherits = next[0]
-    #     group_name = _get_group_name(next[1], inherits)
-
-    #     for inheritor in next[1]:
-    #         if inheritor in corpora_settings:
-    #             x = corpora_settings[inheritor]
-    #         elif inheritor in groups:
-    #             x = groups[inheritor]
-
-    #         # remove the old groups from corpus
-    #         x["inherits"] = [group for group in x["inherits"] if group not in inherits]
-    #         # and add the new group
-    #         x["inherits"].append(group_name)
-
-    #     print("new_group: ", group_name, inherits)
-    #     print("used by: ", next[1])
-
-    #     groups[group_name] = {
-    #         "inherits": list(inherits)
-    #     }
-
-    # while True:
-    #     # TODO should crash when group_of_groups becomes empty, but it does not, so there is a bug
-    #     loop()
-
-    # return groups
 
 
 def _get_group_name(corpora, groups):
