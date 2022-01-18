@@ -98,6 +98,32 @@ defaults = {
     "wordpicture": True,
 }
 
+group_names = {
+    "abotidning_180": "saldo",
+    "abotidning_184": "prefix-suffix-old",
+    "abotidning_266": "date9",
+    "abotidning_354": "msd",
+    "abotidning_690": "deprel",
+    "abotidning_695": "dephead",
+    "abotidning_696": "ref",
+    "abotidning_699": "pos",
+    "abotidning_700": "lemma",
+    "abotidning_abounderrattelser2012_699": "lex",
+    "abounderrattelser2012_249": "prefix-suffix-removed",
+
+    "abounderrattelser2012_513": "name-tagging",
+
+    "attasidor_27": "sentence-hidden",
+
+    "bellman_354": "dalin",
+
+    "dream-de-open_13": "dream1",
+    "dream-en-open_4": "dream2",
+    "dream-en-open_5": "dream3",
+
+    "familjeliv-adoption_39": "forum",
+}
+
 def main():
 
     modes = {}
@@ -166,6 +192,8 @@ def main():
     # create groups of attributes that are commonly used together
     groups = _create_groups(corpora, attributes)
 
+    groups = _create_groups_from_groups(corpora, groups)
+
     print("write groups", len(groups.keys()))
     for group_name in groups.keys():
         with open('./result/attributes/%s.yaml' % group_name, 'w', encoding="utf-8") as fp:
@@ -184,8 +212,8 @@ def main():
 
 
 def _inline_label_translations(all_attributes):
-    en_labels = json.load(open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-en.json'))
-    sv_labels = json.load(open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-sv.json'))
+    en_labels = json.load(open('../korp-frontend-sb/app/translations/corpora-en.json'))
+    sv_labels = json.load(open('../korp-frontend-sb/app/translations/corpora-sv.json'))
 
     remove_sv = set()
     remove_en = set()
@@ -220,8 +248,8 @@ def _inline_label_translations(all_attributes):
     for key in remove_en:
         del en_labels[key]
 
-    json.dump(en_labels, open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-en-new.json', 'w'), indent=4, ensure_ascii=False)
-    json.dump(sv_labels, open('../korp-frontend-sb-rewrite-ready/app/translations/corpora-sv-new.json', 'w'), indent=4, ensure_ascii=False)
+    json.dump(en_labels, open('../korp-frontend-sb/app/translations/corpora-en-new.json', 'w'), indent=4, ensure_ascii=False)
+    json.dump(sv_labels, open('../korp-frontend-sb/app/translations/corpora-sv-new.json', 'w'), indent=4, ensure_ascii=False)
     
 
 def _check_attribute(attributes, corpus_id, attr_key, attr):
@@ -340,6 +368,7 @@ def _inline_attributes(corpora_settings, global_attributes):
 
 
 def _create_groups(corpora_settings, global_attributes):
+
     # corpora, sorted and joined with ',' a list of attributes
     group_to_attributes = {}
     for attr_type, attributes in global_attributes.items():
@@ -357,12 +386,7 @@ def _create_groups(corpora_settings, global_attributes):
         group_attributes = group_to_attributes[corpora]
 
         actual_corpora = corpora.split(',')
-        # group naming scheme: name of first corpus in group, then number of corpora in group
-        # should be improved later, of course
-        group_name = actual_corpora[0] + '_' + str(len(actual_corpora))
-        while group_name in groups:
-            # group name already used!
-            group_name = actual_corpora[0] + '_' + actual_corpora[1] + '_' + str(len(actual_corpora))
+        group_name = _get_group_name(actual_corpora, groups)
 
         for corpus in actual_corpora:
             inherits = corpora_settings[corpus].get("inherits", [])
@@ -380,7 +404,73 @@ def _create_groups(corpora_settings, global_attributes):
 
 
 
+def _create_groups_from_groups(corpora_settings, groups):
     
+    # print(json.dumps(groups, indent=4))
+    # import sys
+    # sys.exit()
+    return groups
+
+    # def loop():
+
+    #     groups_of_groups = {}
+
+    #     for corpus, corpus_settings in list(corpora_settings.items()) + list(groups.items()):
+    #         inherits = corpus_settings.get("inherits", [])
+
+    #         for x in range(1, len(inherits)):
+    #             group_ids = tuple(inherits[0:x])
+    #             if group_ids not in groups_of_groups:
+    #                 groups_of_groups[group_ids] = []
+    #             groups_of_groups[group_ids].append(corpus)
+
+
+    #     for group_ids, inheritors in list(groups_of_groups.items()):
+    #         if len(inheritors) == 1:
+    #             del groups_of_groups[group_ids]        
+
+    #     next = sorted(groups_of_groups.items(), key=lambda item: len(item[0]), reverse=True)[0]
+
+    #     inherits = next[0]
+    #     group_name = _get_group_name(next[1], inherits)
+
+    #     for inheritor in next[1]:
+    #         if inheritor in corpora_settings:
+    #             x = corpora_settings[inheritor]
+    #         elif inheritor in groups:
+    #             x = groups[inheritor]
+
+    #         # remove the old groups from corpus
+    #         x["inherits"] = [group for group in x["inherits"] if group not in inherits]
+    #         # and add the new group
+    #         x["inherits"].append(group_name)
+
+    #     print("new_group: ", group_name, inherits)
+    #     print("used by: ", next[1])
+
+    #     groups[group_name] = {
+    #         "inherits": list(inherits)
+    #     }
+
+    # while True:
+    #     # TODO should crash when group_of_groups becomes empty, but it does not, so there is a bug
+    #     loop()
+
+    # return groups
+
+
+def _get_group_name(corpora, groups):
+    # group naming scheme: name of first corpus in group, then number of corpora in group
+    # use automatic translation given in group_names
+    group_name = corpora[0] + '_' + str(len(corpora))
+    while group_name in groups:
+        # group name already used!
+        group_name = corpora[0] + '_' + corpora[1] + '_' + str(len(corpora))
+
+    # translate the name to a better name
+    return group_names.get(group_name, group_name)
+
+
 
 if __name__ == '__main__':
     main()

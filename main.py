@@ -21,7 +21,6 @@ def main():
     os.popen('mkdir result/modes').read()
     os.popen('mkdir result/corpora').read()
     os.popen('mkdir result/attributes').read()
-    os.popen('mkdir result/attributes/groups').read()
     # Create backend files
     backend.main()
 
@@ -30,7 +29,7 @@ def copy():
     if os.path.exists('source'):
         shutil.rmtree('source')
     os.makedirs('source')
-    os.popen('cp -r ../korp-frontend-sb-rewrite-ready/app/* source/').read()
+    os.popen('cp -r ../korp-frontend-sb/app/* source/').read()
 
 
 def call_node(modes):
